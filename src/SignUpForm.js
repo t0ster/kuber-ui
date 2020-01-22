@@ -7,12 +7,13 @@ import credentials from './credentials.json';
 import {OAuth2Client} from 'google-auth-library';
 import queryString from 'query-string';
 import jwtDecode from 'jwt-decode';
+import config from './config';
 
 
 const oAuth2Client = new OAuth2Client(
   credentials.web.client_id,
   credentials.web.client_secret,
-  'http://kuber.192.168.99.101.nip.io/auth/google'
+  `http://${config.REACT_APP_HOST}/auth/google`
 );
 
 
