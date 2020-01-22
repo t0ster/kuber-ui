@@ -1,2 +1,9 @@
 node_modules
 build
+telepresence.log
+Dockerfile
+.DS_Store
+.dockerignore
+.git
+.gitignore
+.gitlab-ci.yml
