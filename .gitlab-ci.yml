@@ -5,11 +5,50 @@ build:
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:master
+    # - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  only:
+  - master
 
 staging:
+  stage: deploy
   variables:
     UPSTREAM_REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
-    UPSTREAM_COMMIT_SHA: $CI_COMMIT_SHORT_SHA
-  stage: deploy
+    UPSTREAM_TAG: master
   trigger: t0ster/kuber-stack
+  only:
+  - master
+
+pull_request_build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  only:
+  - merge_requests
+
+pull_request_deploy:
+  stage: deploy
+  variables:
+    UPSTREAM_REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
+    UPSTREAM_TAG: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  trigger:
+    project: t0ster/kuber-stack
+    branch: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  only:
+  - merge_requests
+
+pull_request_deploy_:
+  stage: deploy
+  variables:
+    UPSTREAM_REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
+    UPSTREAM_TAG: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  trigger:
+    project: t0ster/kuber-stack
+    branch: master
+  only:
+  - merge_requests
+  when: on_failure
