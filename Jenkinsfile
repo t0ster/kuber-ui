@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo hello world 4'
+                sh 'docker ps -a'
+                sh 'kubectl get pod -A'
             }
         }
     }
