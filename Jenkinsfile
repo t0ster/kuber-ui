@@ -17,21 +17,28 @@
 // }
 node {
   checkout scm
+  def tag = null
+  if (env.BRANCH_NAME == 'master') {
+    tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+  } else if (env.CHANGE_BRANCH) {
+    tag = env.CHANGE_BRANCH
+  } else {
+    tag = env.BRANCH_NAME
+  }
 
   stage('Build') {
     sh 'env|sort'
     docker.withRegistry('', 'dockerhub-registry') {
-      def tag = null
-      if (env.BRANCH_NAME == 'master') {
-        tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-      } else if (env.CHANGE_BRANCH) {
-        tag = env.CHANGE_BRANCH
-      } else {
-        tag = env.BRANCH_NAME
-      }
       def customImage = docker.build("t0ster/kuber-ui:${tag}")
       customImage.push()
-      // sh "docker rmi t0ster/kuber-ui:${tag}"
+      sh "docker rmi t0ster/kuber-ui:${tag}"
+    }
+  }
+
+  stage('Deploy') {
+    dir('kuber') {
+      git branch: 'master', changelog: false, poll: false, url: 'https://github.com/t0ster/kuber.git'
+      sh 'echo Makefile'
     }
   }
 }
