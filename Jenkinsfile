@@ -40,7 +40,7 @@ node {
       git branch: 'master', changelog: false, poll: false, url: 'https://github.com/t0ster/kuber.git'
       sh "kubectl create namespace ui-${tag} || true"
       sh "helm -n ui-${tag} template kuber charts/kuber-stack --set host=ui-${tag}.${env.BASE_HOST} > kuber.yaml"
-      sh "cat kuber.yaml"
+      sh "kubectl -n ui-${tag} apply -f kuber.yaml"
     }
   }
 }
