@@ -23,7 +23,7 @@ node {
     docker.withRegistry('', 'dockerhub-registry') {
       if (env.BRANCH_NAME == 'master') {
         def tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-      } else if (env.containsKey('CHANGE_BRANCH')) {
+      } else if (env.CHANGE_BRANCH) {
         def tag = env.CHANGE_BRANCH
       } else {
         def tag = env.BRANCH_NAME
