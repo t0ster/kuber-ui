@@ -21,14 +21,15 @@ node {
   stage('Build') {
     sh 'env|sort'
     docker.withRegistry('', 'dockerhub-registry') {
+      def tag = null
       if (env.BRANCH_NAME == 'master') {
-        def tagName = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+        tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
       } else if (env.CHANGE_BRANCH) {
-        def tagName = env.CHANGE_BRANCH
+        tag = env.CHANGE_BRANCH
       } else {
-        def tagName = env.BRANCH_NAME
+        tag = env.BRANCH_NAME
       }
-      def customImage = docker.build("t0ster/kuber-ui:${tagName}")
+      def customImage = docker.build("t0ster/kuber-ui:${tag}")
       customImage.push()
       // sh "docker rmi t0ster/kuber-ui:${tag}"
     }
