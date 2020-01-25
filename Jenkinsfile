@@ -38,7 +38,7 @@ node {
   stage('Deploy') {
     dir('kuber') {
       git branch: 'master', changelog: false, poll: false, url: 'https://github.com/t0ster/kuber.git'
-      sh 'echo Makefile'
+      sh 'cat Makefile'
     }
   }
 }
