@@ -21,10 +21,16 @@ node {
   stage('Build') {
     sh 'env|sort'
     docker.withRegistry('', 'dockerhub-registry') {
-      def shortCommit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-      def customImage = docker.build("t0ster/kuber-ui:${shortCommit}")
+      if (env.BRANCH_NAME == 'master') {
+        def tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+      } else if (env.containsKey('CHANGE_BRANCH')) {
+        def tag = env.CHANGE_BRANCH
+      } else {
+        def tag = env.BRANCH_NAME
+      }
+      def customImage = docker.build("t0ster/kuber-ui:${tag}")
       customImage.push()
-      // sh "docker rmi t0ster/kuber-ui:${shortCommit}"
+      // sh "docker rmi t0ster/kuber-ui:${tag}"
     }
   }
 }
