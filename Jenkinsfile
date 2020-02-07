@@ -12,10 +12,10 @@
 //   }
 // }
 def branch = null
-if (CHANGE_BRANCH) {
-  branch = CHANGE_BRANCH
+if (env.CHANGE_BRANCH) {
+  branch = env.CHANGE_BRANCH
 } else {
-  branch = BRANCH_NAME
+  branch = env.BRANCH_NAME
 }
 def uiTag = branch
 // def kuberBranch = branch
