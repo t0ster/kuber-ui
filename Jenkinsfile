@@ -42,7 +42,7 @@ podTemplate(
     node(POD_LABEL) {
         stage('Build') {
             container('builder') {
-                if ((sh returnStatus: true, script: "docker manifest inspect t0ster/kuber-functions:${branch} > /dev/null") == 1) {
+                if (sh(returnStatus: true, script: "docker manifest inspect t0ster/kuber-functions:${branch} > /dev/null") == 1) {
                   functionsTag = 'master'
                 }
                 checkout scm
