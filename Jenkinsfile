@@ -67,14 +67,14 @@ podTemplate(
                         "host": "${branch}.kuber.35.246.75.225.nip.io".
                         "ui": {
                             "image": {
-                                "tag": ${uiTag},
+                                "tag": "${uiTag}",
                                 "pullPolicy": "Always",
                                 "release": "kuber-ui-${BUILD_ID}"
                             }
                         },
                         "functions": {
                             "image": {
-                                "tag": ${functionsTag},
+                                "tag": "${functionsTag}",
                                 "pullPolicy": "Always",
                                 "release": "kuber-ui-${BUILD_ID}"
                             }
