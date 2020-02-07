@@ -27,7 +27,7 @@ def seleniumTag = 'master'
 podTemplate(
         containers: [
                 containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave'),
-                containerTemplate(name: 'builder', image: 't0ster/build-deploy', command: 'cat', ttyEnabled: true, envVars: [
+                containerTemplate(name: 'builder', image: 't0ster/build-deploy:0.0.2', command: 'cat', ttyEnabled: true, envVars: [
                     envVar(key: 'DOCKER_HOST', value: 'tcp://dind:2375'),
                     envVar(key: 'DOCKER_CLI_EXPERIMENTAL', value: 'enabled')
                 ]),
@@ -56,12 +56,13 @@ podTemplate(
             }
         }
         stage('Deploy') {
+            def namespace = (branch == 'master') ? 'stg' : branch
             def patchOrg = """
                 {
-                    "release": "kuber-stg",
+                    "release": "kuber-${branch}",
                     "repo": "https://github.com/t0ster/kuber.git",
                     "path": "charts/kuber-stack",
-                    "namespace": "stg",
+                    "namespace": ${namespace},
                     "values": {
                         "host": "${branch}.kuber.35.246.75.225.nip.io".
                         "ui": {
