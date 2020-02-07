@@ -82,6 +82,7 @@ podTemplate(
                     }
                 }
             """
+            echo patchOrg
             def response = httpRequest acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: patchOrg, url: "http://deployer-kuber-deployer.kube-system"
             def jsonObj = readJSON text: response.content
             echo jsonObj['result']
