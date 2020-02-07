@@ -78,7 +78,7 @@ podTemplate(
                                 "pullPolicy": "Always",
                                 "release": "kuber-ui-${BUILD_ID}"
                             }
-                        },
+                        }
                     }
                 }
             """
