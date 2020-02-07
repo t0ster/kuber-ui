@@ -64,7 +64,7 @@ podTemplate(
                     "path": "charts/kuber-stack",
                     "namespace": "${namespace}",
                     "values": {
-                        "host": "${branch}.kuber.35.246.75.225.nip.io".
+                        "host": "${branch}.kuber.35.246.75.225.nip.io",
                         "ui": {
                             "image": {
                                 "tag": "${uiTag}",
