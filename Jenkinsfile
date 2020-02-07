@@ -1,46 +1,99 @@
-// pipeline {
-//   agent any
-//   stages {
-//     stage('Build') {
-//       steps {
-//         script {
-//           def shortCommit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-//           docker.withRegistry('', 'docker-registry') {
-//             def customImage = docker.build("t0ster/kuber-ui:${shortCommit}")
-//             customImage.push()
-//             // sh "docker rmi t0ster/kuber-ui:${shortCommit}"
-//           }
-//         }
-//       }
+// node {
+//   checkout scm
+//
+//   stage('Build') {
+//     sh 'env|sort'
+//     docker.withRegistry('', 'dockerhub-registry') {
+//       def shortCommit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+//       def customImage = docker.build("t0ster/kuber-ui:${shortCommit}")
+//       customImage.push()
+//       // sh "docker rmi t0ster/kuber-ui:${shortCommit}"
 //     }
 //   }
 // }
-node {
-  checkout scm
-  def tag = null
-  if (env.BRANCH_NAME == 'master') {
-    tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-  } else if (env.CHANGE_BRANCH) {
-    tag = env.CHANGE_BRANCH
-  } else {
-    tag = env.BRANCH_NAME
-  }
+def branch = null
+if (CHANGE_BRANCH) {
+  branch = CHANGE_BRANCH
+} else {
+  branch = BRANCH_NAME
+}
+def uiTag = branch
+// def kuberBranch = branch
+def functionsTag = branch
+// def seleniumTag = branch
+def seleniumTag = 'master'
 
-  stage('Build') {
-    sh 'env|sort'
-    docker.withRegistry('', 'dockerhub-registry') {
-      def customImage = docker.build("t0ster/kuber-ui:${tag}")
-      customImage.push()
-      sh "docker rmi t0ster/kuber-ui:${tag}"
-    }
-  }
 
-  stage('Deploy') {
-    dir('kuber') {
-      git branch: 'master', changelog: false, poll: false, url: 'https://github.com/t0ster/kuber.git'
-      sh "kubectl create namespace ui-${tag} || true"
-      sh "helm -n ui-${tag} template kuber charts/kuber-stack --set host=ui-${tag}.${env.BASE_HOST},image.pullPolicy=Always,image.tag=${tag} > kuber.yaml"
-      sh "kubectl -n ui-${tag} apply -f kuber.yaml"
+podTemplate(
+        containers: [
+                containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave'),
+                containerTemplate(name: 'builder', image: 't0ster/build-deploy', command: 'cat', ttyEnabled: true, envVars: [
+                    envVar(key: 'DOCKER_HOST', value: 'tcp://dind:2375'),
+                    envVar(key: 'DOCKER_CLI_EXPERIMENTAL', value: 'enabled')
+                ]),
+                containerTemplate(name: 'selenium', alwaysPullImage: true, image: "t0ster/kuber-selenium:${seleniumTag}", command: 'cat', ttyEnabled: true, envVars: [
+                    envVar(key: 'SELENIUM_HOST', value: 'zalenium'),
+                    envVar(key: 'BASE_URL', value: "http://${branch}.kuber.35.246.75.225.nip.io"),
+                    envVar(key: 'BUILD', value: "kuber-ui-${BUILD_ID}"),
+                ])
+        ],
+        serviceAccount: 'jenkins-operator-jenkins'
+) {
+    node(POD_LABEL) {
+        stage('Build') {
+            container('builder') {
+                if (sh returnStatus: true, script: "docker manifest inspect t0ster/kuber-functions:${branch} > /dev/null" == 1) {
+                  functionsTag = 'master'
+                }
+                checkout scm
+                sha = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+                // git branch: uiTag, changelog: false, poll: false, url: 'https://github.com/t0ster/kuber-ui.git'
+                docker.withRegistry('', 'dockerhub-registry') {
+                  def customImage = docker.build("t0ster/kuber-ui:${uiTag}")
+                  customImage.push()
+                //   sh "docker rmi t0ster/kuber-functions:master"
+                }
+            }
+        }
+        stage('Deploy') {
+            def patchOrg = """
+                {
+                    "release": "kuber-stg",
+                    "repo": "https://github.com/t0ster/kuber.git",
+                    "path": "charts/kuber-stack",
+                    "namespace": "stg",
+                    "values": {
+                        "host": "${branch}.kuber.35.246.75.225.nip.io".
+                        "ui": {
+                            "image": {
+                                "tag": ${uiTag},
+                                "pullPolicy": "Always",
+                                "release": "kuber-ui-${BUILD_ID}"
+                            }
+                        },
+                        "functions": {
+                            "image": {
+                                "tag": ${functionsTag},
+                                "pullPolicy": "Always",
+                                "release": "kuber-ui-${BUILD_ID}"
+                            }
+                        },
+                    }
+                }
+            """
+            def response = httpRequest acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: patchOrg, url: "http://deployer-kuber-deployer.kube-system"
+            def jsonObj = readJSON text: response.content
+            echo jsonObj['result']
+        }
+        stage('Functional Test') {
+            container('selenium') {
+                try {
+                    sh 'pytest /app --verbose --junit-xml reports/tests.xml'
+                } finally {
+                    junit testResults: 'reports/tests.xml'
+                    echo "http://zalenium.35.246.75.225.nip.io/dashboard/?q=build:kuber-ui-${BUILD_ID}"
+                }
+            }
+        }
     }
-  }
 }
