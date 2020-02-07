@@ -62,7 +62,7 @@ podTemplate(
                     "release": "kuber-${branch}",
                     "repo": "https://github.com/t0ster/kuber.git",
                     "path": "charts/kuber-stack",
-                    "namespace": ${namespace},
+                    "namespace": "${namespace}",
                     "values": {
                         "host": "${branch}.kuber.35.246.75.225.nip.io".
                         "ui": {
