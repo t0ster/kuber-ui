@@ -52,10 +52,10 @@ podTemplate(
                     envVar(key: 'DOCKER_HOST', value: 'tcp://dind:2375'),
                     envVar(key: 'DOCKER_CLI_EXPERIMENTAL', value: 'enabled')
                 ]),
-                containerTemplate(name: 'selenium', alwaysPullImage: true, image: "t0ster/kuber-selenium:${containers['selenium']['tag']}", command: 'cat', ttyEnabled: true, envVars: [
+                containerTemplate(name: 'selenium', alwaysPullImage: true, image: "t0ster/kuber-selenium:master", command: 'cat', ttyEnabled: true, envVars: [
                     envVar(key: 'SELENIUM_HOST', value: 'zalenium'),
                     envVar(key: 'BASE_URL', value: "http://${branch}.kuber.35.246.75.225.nip.io"),
-                    envVar(key: 'BUILD', value: "kuber-ui-${BUILD_ID}"),
+                    envVar(key: 'BUILD', value: "kuber-${build}-${BUILD_ID}"),
                 ])
         ],
         serviceAccount: 'jenkins-operator-jenkins'
