@@ -11,18 +11,39 @@
 //     }
 //   }
 // }
+def build = "ui"
 def branch = null
 if (env.CHANGE_BRANCH) {
   branch = env.CHANGE_BRANCH
 } else {
   branch = env.BRANCH_NAME
 }
-def uiTag = branch
+// def uiTag = branch
 // def kuberBranch = branch
-def functionsTag = branch
+// def functionsTag = branch
 // def seleniumTag = branch
-def seleniumTag = 'master'
+// def seleniumTag = 'master'
 
+def containers = [
+  "ui": [
+    "image": "t0ster/kuber-ui",
+    "tag": branch
+  ],
+  "functions": [
+    "image": "t0ster/kuber-functions",
+    "tag": branch
+  ],
+  "selenium": [
+    "image": "t0ster/kuber-selenium",
+    "tag": branch
+  ],
+]
+
+// images.remove(build)
+
+def containerExists(image) {
+  return sh(returnStatus: true, script: "docker manifest inspect ${image} > /dev/null") == 0
+}
 
 podTemplate(
         containers: [
@@ -42,14 +63,23 @@ podTemplate(
     node(POD_LABEL) {
         stage('Build') {
             container('builder') {
-                if (sh(returnStatus: true, script: "docker manifest inspect t0ster/kuber-functions:${branch} > /dev/null") == 1) {
-                  functionsTag = 'master'
+                // if (!containerExists("t0ster/kuber-functions:${branch}")) {
+                //   functionsTag = 'master'
+                // }
+                containers.each { repo, val ->
+                  if (repo != build) {
+                    if (!containerExists("${val['image']}:${val['tag']}")) {
+                      val['tag'] = 'master'
+                    }
+                  }
                 }
                 checkout scm
                 sha = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
                 // git branch: uiTag, changelog: false, poll: false, url: 'https://github.com/t0ster/kuber-ui.git'
                 docker.withRegistry('', 'dockerhub-registry') {
-                  def customImage = docker.build("t0ster/kuber-ui:${uiTag}")
+                  def image = containers[build]['image']
+                  def tag = containers[build]['tag']
+                  def customImage = docker.build("${image}:${tag}")
                   customImage.push()
                 //   sh "docker rmi t0ster/kuber-functions:master"
                 }
@@ -67,16 +97,16 @@ podTemplate(
                         "host": "${branch}.kuber.35.246.75.225.nip.io",
                         "ui": {
                             "image": {
-                                "tag": "${uiTag}",
+                                "tag": "${containers['ui']['tag']}",
                                 "pullPolicy": "Always",
-                                "release": "kuber-ui-${BUILD_ID}"
+                                "release": "kuber-${build}-${BUILD_ID}"
                             }
                         },
                         "functions": {
                             "image": {
-                                "tag": "${functionsTag}",
+                                "tag": "${containers['functions']['tag']}",
                                 "pullPolicy": "Always",
-                                "release": "kuber-ui-${BUILD_ID}"
+                                "release": "kuber-${build}-${BUILD_ID}"
                             }
                         }
                     }
