@@ -1,2 +1,3 @@
-@Library('kuber') _
-kuber.cicd('ui')
+// @Library('kuber') _
+// kuber.cicd('ui')
+sh 'env'
