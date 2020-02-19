@@ -40,6 +40,7 @@ function checkRequested(e, p) {
     end.env.CHECK_CONCLUSION = "success"
     end.env.CHECK_SUMMARY = "Build completed"
     end.env.CHECK_TEXT = result.toString()
+    end.env.CHECK_DETAILS_URL = "https://google.com"
     return end.run()
   }).catch( (err) => {
     // In this case, we mark the ending failed.
