@@ -37,11 +37,12 @@ async function checkRequested(e, p) {
       result = await build.run();
       end.env.CHECK_CONCLUSION = "success";
       end.env.CHECK_SUMMARY = "Build completed";
-      end.env.CHECK_TEXT = `
-        ${result.toString()}
-        ${JSON.stringify(e)}
-        ${JSON.stringify(p)}
-      `;
+      const payload = JSON.parse(e.payload);
+      end.env.CHECK_TEXT = `### This is a third-tier heading
+${result.toString()}
+\`\`\`${JSON.stringify(payload, null, 2)}
+\`\`\`
+`;
       end.env.CHECK_DETAILS_URL = "https://google.com";
       await end.run();
     } catch (err) {
