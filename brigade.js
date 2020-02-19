@@ -18,7 +18,20 @@ async function checkRequested(e, p) {
     };
 
     // This will represent our build job. For us, it's just an empty thinger.
-    const build = new Job(`build-${n}`, "alpine:3.7", ["sleep 2", "echo hello"]);
+    const build = new Job(`build-${n}`, "t0ster/build-deploy:0.0.2", [
+      "ls -la /root/.docker/config.json"
+    ]);
+    build.volumes = [{
+      "name": "regcred",
+      "secret": {
+        "secretName": "regcred"
+      }
+    }];
+    build.volumeMounts = [{
+      "name": "regcred",
+      "mountPath": "/root/.docker/config.json",
+      "subPath": ".dockerconfigjson"
+    }]
 
     // For convenience, we'll create three jobs: one for each GitHub Check
     // stage.
