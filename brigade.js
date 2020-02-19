@@ -1,4 +1,4 @@
-const {events, Job, Group} = require("brigadier");
+import {events, Job, Group} from "brigadier";
 const checkRunImage = "brigadecore/brigade-github-check-run:latest"
 
 events.on("check_suite:requested", checkRequested)
@@ -23,30 +23,24 @@ function checkRequested(e, p) {
   start.imageForcePull = true
   start.env = env
   start.env.CHECK_SUMMARY = "Beginning test run"
+  start.env.CHECK_DETAILS_URL = "https://google.com"
 
   const end = new Job("end-run", checkRunImage)
   end.imageForcePull = true
   end.env = env
 
-  // Now we run the jobs in order:
-  // - Notify GitHub of start
-  // - Run the test
-  // - Notify GitHub of completion
-  //
-  // On error, we catch the error and notify GitHub of a failure.
-  start.run().then(() => {
-    return build.run()
-  }).then( (result) => {
+  start.run()
+  try {
+    await build.run()
     end.env.CHECK_CONCLUSION = "success"
     end.env.CHECK_SUMMARY = "Build completed"
     end.env.CHECK_TEXT = result.toString()
     end.env.CHECK_DETAILS_URL = "https://google.com"
-    return end.run()
-  }).catch( (err) => {
-    // In this case, we mark the ending failed.
+    await end.run()
+  } catch (err) {
     end.env.CHECK_CONCLUSION = "failure"
     end.env.CHECK_SUMMARY = "Build failed"
     end.env.CHECK_TEXT = `Error: ${ err }`
-    return end.run()
-  })
+    await end.run()
+  }
 }
