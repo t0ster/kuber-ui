@@ -16,7 +16,7 @@ async function checkRequested(e, p) {
     }
 
     // This will represent our build job. For us, it's just an empty thinger.
-    const build = new Job(`build-${n}`, "alpine:3.7", ["sleep 60", "echo hello"])
+    const build = new Job(`build-${n}`, "alpine:3.7", ["sleep 2", "echo hello"])
 
     // For convenience, we'll create three jobs: one for each GitHub Check
     // stage.
@@ -47,5 +47,5 @@ async function checkRequested(e, p) {
   }
 
   _checkRequested("MyService", "1");
-  _checkRequested("MyService 2", "2");
+  _checkRequested("MyService 2", "1");
 }
