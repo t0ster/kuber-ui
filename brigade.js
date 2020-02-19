@@ -5,13 +5,7 @@ events.on("check_suite:requested", checkRequested);
 events.on("check_suite:rerequested", checkRequested);
 events.on("check_run:rerequested", checkRequested);
 
-function buildImage(e, image) {
-  const env = {
-    CHECK_PAYLOAD: e.payload,
-    CHECK_NAME: "Build",
-    // CHECK_TITLE: "Echo Test"
-  };
-
+function buildImage(image) {
   const build = new Job('build', "t0ster/build-deploy:0.0.2", [
     "cd /src",
     "docker build . -t $IMAGE",
@@ -39,6 +33,12 @@ function buildImage(e, image) {
 async function checkRequested(e, p) {
   console.log("check requested");
 
+  const env = {
+    CHECK_PAYLOAD: e.payload,
+    CHECK_NAME: "Build",
+    // CHECK_TITLE: "Echo Test"
+  };
+
   const start = new Job('start-run-build', checkRunImage);
   // start.imageForcePull = true
   start.env = env;
@@ -55,7 +55,7 @@ async function checkRequested(e, p) {
     const payload = JSON.parse(e.payload);
     const repoName = payload.body.repository.full_name;
     const branch = payload.body.check_suite.head_branch;
-    result = await buildImage(e, `${repoName}:${branch}`);
+    result = await buildImage(`${repoName}:${branch}`);
     end.env.CHECK_CONCLUSION = "success";
     end.env.CHECK_SUMMARY = "Build completed";
     // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
