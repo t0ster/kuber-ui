@@ -1,4 +1,4 @@
-import {events, Job, Group} from "brigadier";
+const {events, Job, Group} = require("brigadier");
 const checkRunImage = "brigadecore/brigade-github-check-run:latest"
 
 events.on("check_suite:requested", checkRequested)
