@@ -5,7 +5,7 @@ events.on("check_suite:requested", checkRequested);
 events.on("check_suite:rerequested", checkRequested);
 events.on("check_run:rerequested", checkRequested);
 
-async function buildImage(e, image) {
+function buildImage(e, image) {
   const env = {
     CHECK_PAYLOAD: e.payload,
     CHECK_NAME: "Build",
@@ -33,6 +33,12 @@ async function buildImage(e, image) {
     "IMAGE": image
   }
 
+  return build.run()
+}
+
+async function checkRequested(e, p) {
+  console.log("check requested");
+
   const start = new Job('start-run-build', checkRunImage);
   // start.imageForcePull = true
   start.env = env;
@@ -44,8 +50,12 @@ async function buildImage(e, image) {
   end.env = env;
 
   start.run();
+
   try {
-    result = await build.run();
+    const payload = JSON.parse(e.payload);
+    const repoName = payload.body.repository.full_name;
+    const branch = payload.body.check_suite.head_branch;
+    result = await buildImage(e, `${repoName}:${branch}`);
     end.env.CHECK_CONCLUSION = "success";
     end.env.CHECK_SUMMARY = "Build completed";
     // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
@@ -60,13 +70,4 @@ ${result.toString()}
     end.env.CHECK_TEXT = `Error: ${ err }`;
     await end.run();
   }
-}
-
-
-async function checkRequested(e, p) {
-  console.log("check requested");
-  const payload = JSON.parse(e.payload);
-  const repoName = payload.body.repository.full_name;
-  const branch = payload.body.check_suite.head_branch;
-  await buildImage(e, `${repoName}:${branch}`);
 }
