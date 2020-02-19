@@ -47,5 +47,5 @@ async function checkRequested(e, p) {
   }
 
   _checkRequested("MyService", "1");
-  _checkRequested("MyService 2", "1");
+  _checkRequested("MyService 2", "2");
 }
