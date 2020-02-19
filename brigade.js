@@ -21,13 +21,13 @@ async function checkRequested(e, p) {
     // For convenience, we'll create three jobs: one for each GitHub Check
     // stage.
     const start = new Job(`start-run-${n}`, checkRunImage)
-    start.imageForcePull = true
+    // start.imageForcePull = true
     start.env = env
     start.env.CHECK_SUMMARY = "Beginning test run"
     start.env.CHECK_DETAILS_URL = "https://google.com"
 
     const end = new Job(`end-run-${n}`, checkRunImage)
-    end.imageForcePull = true
+    // end.imageForcePull = true
     end.env = env
 
     start.run()
