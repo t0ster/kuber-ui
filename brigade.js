@@ -42,6 +42,7 @@ async function checkRequested(e, p) {
   const start = new Job('start-run-build', checkRunImage);
   // start.imageForcePull = true
   start.env = env;
+  start.env.CHECK_TITLE = "Building..."
   start.env.CHECK_SUMMARY = "Beginning build";
   // start.env.CHECK_DETAILS_URL = "https://google.com";
 
@@ -57,6 +58,7 @@ async function checkRequested(e, p) {
     const branch = payload.body.check_suite.head_branch;
     result = await buildImage(`${repoName}:${branch}`);
     end.env.CHECK_CONCLUSION = "success";
+    start.env.CHECK_TITLE = "Done"
     end.env.CHECK_SUMMARY = "Build completed";
     // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
     end.env.CHECK_TEXT = `### Build
