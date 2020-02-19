@@ -31,7 +31,7 @@ async function checkRequested(e, p) {
 
   start.run()
   try {
-    await build.run()
+    result = await build.run()
     end.env.CHECK_CONCLUSION = "success"
     end.env.CHECK_SUMMARY = "Build completed"
     end.env.CHECK_TEXT = result.toString()
