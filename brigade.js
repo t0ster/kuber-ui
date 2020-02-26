@@ -54,16 +54,17 @@ async function step(e, job) {
   const env = {
     CHECK_PAYLOAD: e.payload,
     CHECK_NAME: "Build",
-    // CHECK_TITLE: "Echo Test"
   };
 
   result = job();
   const start = new Job('start-run-build', checkRunImage);
+  start.useSource = false;
   // start.imageForcePull = true
   start.env = env;
   start.env = {...start.env, ...result.start_env}
 
   const end = new Job('end-run-build', checkRunImage);
+  end.useSource = false;
   // end.imageForcePull = true
   end.env = env;
 
@@ -73,13 +74,13 @@ async function step(e, job) {
     end.env.CHECK_CONCLUSION = "success";
     end.env.CHECK_TITLE = "Done";
     end.env = {...end.env, ...(await result.end_env())}
-    await end.run();
+    end.run();
   } catch (err) {
     end.env.CHECK_CONCLUSION = "failure";
     end.env.CHECK_TITLE = "Failure";
     end.env.CHECK_SUMMARY = "Failed";
     end.env.CHECK_TEXT = `Error: ${ err }`;
-    await end.run();
+    end.run();
   }
 }
 
