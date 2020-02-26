@@ -7,3 +7,4 @@ Dockerfile
 .git
 .gitignore
 .gitlab-ci.yml
+/brigade.js
