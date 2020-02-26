@@ -5,6 +5,7 @@ events.on("check_suite:requested", checkRequested);
 events.on("check_suite:rerequested", checkRequested);
 events.on("check_run:rerequested", checkRequested);
 
+
 function buildImage(image) {
   const build = new Job('build', "t0ster/build-deploy:0.0.2", [
     "cd /src",
@@ -27,24 +28,40 @@ function buildImage(image) {
     "IMAGE": image
   }
 
-  return build.run()
+  start_env = {
+    "CHECK_TITLE": "Building...",
+    "CHECK_SUMMARY": "Beginning build"
+  }
+  async function end_env() {
+    result = await build.run();
+    end = {}
+    env.CHECK_SUMMARY = "Build completed";
+    // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
+    env.CHECK_TEXT = `### Build
+${result.toString()}
+`;
+    // end.env.CHECK_DETAILS_URL = "https://google.com";
+    return env;
+  }
+  return {
+    "start_env": start_env,
+    "end_env": end_env
+  }
 }
 
-async function checkRequested(e, p) {
-  console.log("check requested");
 
+async function step(e, job) {
   const env = {
     CHECK_PAYLOAD: e.payload,
     CHECK_NAME: "Build",
     // CHECK_TITLE: "Echo Test"
   };
 
+  result = job();
   const start = new Job('start-run-build', checkRunImage);
   // start.imageForcePull = true
   start.env = env;
-  start.env.CHECK_TITLE = "Building...";
-  start.env.CHECK_SUMMARY = "Beginning build";
-  // start.env.CHECK_DETAILS_URL = "https://google.com";
+  start.env = {...start.env, ...result.start_env}
 
   const end = new Job('end-run-build', checkRunImage);
   // end.imageForcePull = true
@@ -53,23 +70,22 @@ async function checkRequested(e, p) {
   start.run();
 
   try {
-    const payload = JSON.parse(e.payload);
-    const repoName = payload.body.repository.full_name;
-    const branch = payload.body.check_suite.head_branch;
-    result = await buildImage(`${repoName}:${branch}`);
     end.env.CHECK_CONCLUSION = "success";
-    start.env.CHECK_TITLE = "Done";
-    end.env.CHECK_SUMMARY = "Build completed";
-    // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
-    end.env.CHECK_TEXT = `### Build
-${result.toString()}
-`;
-    // end.env.CHECK_DETAILS_URL = "https://google.com";
+    end.env.CHECK_TITLE = "Done";
+    end.env = {...end.env, ...(await result.end_env())}
     await end.run();
   } catch (err) {
     end.env.CHECK_CONCLUSION = "failure";
-    end.env.CHECK_SUMMARY = "Build failed";
+    end.env.CHECK_TITLE = "Failure";
+    end.env.CHECK_SUMMARY = "Failed";
     end.env.CHECK_TEXT = `Error: ${ err }`;
     await end.run();
   }
+}
+
+async function checkRequested(e, p) {
+  const payload = JSON.parse(e.payload);
+  const repoName = payload.body.repository.full_name;
+  const branch = payload.body.check_suite.head_branch;
+  step(e, () => buildImage(`${repoName}:${branch}`));
 }
