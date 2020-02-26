@@ -34,7 +34,7 @@ function buildImage(image) {
   }
   async function end_env() {
     result = await build.run();
-    end = {}
+    env = {}
     env.CHECK_SUMMARY = "Build completed";
     // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
     env.CHECK_TEXT = `### Build
