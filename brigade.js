@@ -52,13 +52,12 @@ ${result.toString()}
   }
 }
 
-function reviewdog(e) {
+function reviewdog_step(e) {
   const job = new Job('reviewdog', "t0ster/reviewdog-js:0.0.1", [
     "cd /src",
     "npm install",
     "echo $EVENT > /event.json",
-    // "npx eslint src | reviewdog -f eslint -reporter github-pr-check",
-    "tail -f /dev/null"
+    "npx eslint src | reviewdog -f eslint -reporter github-pr-check"
   ]);
   job.env = {
     EVENT: JSON.stringify(e.payload_obj.body),
@@ -71,27 +70,7 @@ function reviewdog(e) {
     CI_REPO_OWNER: e.payload_obj.body.repository.owner.login,
     CI_PULL_REQUEST: String(e.payload_obj.body.check_suite.pull_requests[0].number)
   }
-
-
-  start_env = {
-    "CHECK_TITLE": "Reviewdog...",
-    "CHECK_SUMMARY": "Reviewdog started"
-  }
-  async function end_env() {
-    result = await job.run();
-    env = {}
-    env.CHECK_SUMMARY = "Reviewdog completed";
-    // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
-    env.CHECK_TEXT = `### Reviewdog
-${result.toString()}
-`;
-    // end.env.CHECK_DETAILS_URL = "https://google.com";
-    return env;
-  }
-  return {
-    "start_env": start_env,
-    "end_env": end_env
-  }
+  await job.run();
 }
 
 async function step(e, check_name, job) {
@@ -131,5 +110,5 @@ async function step(e, check_name, job) {
 async function checkRequested(e, p) {
   e.payload_obj = JSON.parse(e.payload);
   // step(e, "Build", buildImage);
-  step(e, "Reviewdog", reviewdog);
+  reviewdog_step(e);
 }
