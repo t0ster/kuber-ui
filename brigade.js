@@ -6,7 +6,10 @@ events.on("check_suite:rerequested", checkRequested);
 events.on("check_run:rerequested", checkRequested);
 
 
-function buildImage(image) {
+function buildImage(e) {
+  const repoName = e.payload_obj.body.repository.full_name;
+  const branch = e.payload_obj.body.check_suite.head_branch;
+
   const build = new Job('build', "t0ster/build-deploy:0.0.2", [
     "cd /src",
     "docker build . -t $IMAGE",
@@ -25,7 +28,7 @@ function buildImage(image) {
   }]
   build.env = {
     "DOCKER_HOST": "tcp://dind:2375",
-    "IMAGE": image
+    "IMAGE": `${repoName}:${branch}`
   }
 
   start_env = {
@@ -49,21 +52,47 @@ ${result.toString()}
   }
 }
 
+function reviewdog() {
+  const build = new Job('reviewdog', "t0ster/reviewdog-js", [
+    "tail -f /dev/null"
+  ]);
 
-async function step(e, job) {
+
+  start_env = {
+    "CHECK_TITLE": "Reviewdog...",
+    "CHECK_SUMMARY": "Reviewdog started"
+  }
+  async function end_env() {
+    result = await build.run();
+    env = {}
+    env.CHECK_SUMMARY = "Reviewdog completed";
+    // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
+    env.CHECK_TEXT = `### Reviewdog
+${result.toString()}
+`;
+    // end.env.CHECK_DETAILS_URL = "https://google.com";
+    return env;
+  }
+  return {
+    "start_env": start_env,
+    "end_env": end_env
+  }
+}
+
+async function step(e, check_name, job) {
   const env = {
     CHECK_PAYLOAD: e.payload,
-    CHECK_NAME: "Build",
+    CHECK_NAME: check_name,
   };
 
-  result = job();
-  const start = new Job('start-run-build', checkRunImage);
+  result = job(e);
+  const start = new Job(`gh-check-start-${Date.now()}`, checkRunImage);
   start.useSource = false;
   // start.imageForcePull = true
   start.env = env;
   start.env = {...start.env, ...result.start_env}
 
-  const end = new Job('end-run-build', checkRunImage);
+  const end = new Job(`gh-check-end-${Date.now()}`, checkRunImage);
   end.useSource = false;
   // end.imageForcePull = true
   end.env = env;
@@ -85,8 +114,6 @@ async function step(e, job) {
 }
 
 async function checkRequested(e, p) {
-  const payload = JSON.parse(e.payload);
-  const repoName = payload.body.repository.full_name;
-  const branch = payload.body.check_suite.head_branch;
-  step(e, () => buildImage(`${repoName}:${branch}`));
+  e.payload_obj = JSON.parse(e.payload);
+  step(e, "Build", buildImage);
 }
