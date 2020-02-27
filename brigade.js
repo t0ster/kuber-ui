@@ -2,7 +2,7 @@ const {events, Job, Group} = require("brigadier");
 const checkRunImage = "brigadecore/brigade-github-check-run:latest";
 
 events.on("check_suite:requested", checkRequested);
-events.on("check_suite:rerequested", checkRequested);
+// events.on("check_suite:rerequested", checkRequested);
 events.on("check_run:rerequested", checkRequested);
 
 
@@ -65,7 +65,7 @@ function reviewdog(e) {
     REVIEWDOG_INSECURE_SKIP_VERIFY: "true",
     GITHUB_EVENT_PATH: "/event.json",
     GITHUB_ACTION: "reviewdog",
-    // REVIEWDOG_GITHUB_API_TOKEN: e.payload_obj.token,
+    REVIEWDOG_GITHUB_API_TOKEN: e.payload_obj.token,
     // CI_COMMIT: e.payload_obj.body.check_suite.head_sha,
     // CI_REPO_NAME: e.payload_obj.body.repository.name,
     // CI_REPO_OWNER: e.payload_obj.body.repository.owner.login,
