@@ -52,10 +52,11 @@ ${result.toString()}
   }
 }
 
-function reviewdog() {
-  const build = new Job('reviewdog', "t0ster/reviewdog-js", [
+function reviewdog(e) {
+  const job = new Job('reviewdog', "t0ster/reviewdog-js", [
     "tail -f /dev/null"
   ]);
+  job.env = {CHECK_PAYLOAD: e.payload}
 
 
   start_env = {
@@ -115,5 +116,6 @@ async function step(e, check_name, job) {
 
 async function checkRequested(e, p) {
   e.payload_obj = JSON.parse(e.payload);
-  step(e, "Build", buildImage);
+  // step(e, "Build", buildImage);
+  step(e, "Reviewdog", reviewdog);
 }
