@@ -66,10 +66,10 @@ function reviewdog(e) {
     GITHUB_EVENT_PATH: "/event.json",
     GITHUB_ACTION: "reviewdog",
     REVIEWDOG_GITHUB_API_TOKEN: e.payload_obj.token,
-    // CI_COMMIT: e.payload_obj.body.check_suite.head_sha,
-    // CI_REPO_NAME: e.payload_obj.body.repository.name,
-    // CI_REPO_OWNER: e.payload_obj.body.repository.owner.login,
-    CI_PULL_REQUEST: e.payload_obj.body.check_suite.pull_requests[0].number
+    CI_COMMIT: e.payload_obj.body.check_suite.head_sha,
+    CI_REPO_NAME: e.payload_obj.body.repository.name,
+    CI_REPO_OWNER: e.payload_obj.body.repository.owner.login,
+    CI_PULL_REQUEST: String(e.payload_obj.body.check_suite.pull_requests[0].number)
   }
 
 
