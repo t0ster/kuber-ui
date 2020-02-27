@@ -53,7 +53,7 @@ ${result.toString()}
 }
 
 function reviewdog(e) {
-  const job = new Job('reviewdog', "t0ster/reviewdog-js", [
+  const job = new Job('reviewdog', "t0ster/reviewdog-js:0.0.1", [
     "tail -f /dev/null"
   ]);
   job.env = {CHECK_PAYLOAD: e.payload}
