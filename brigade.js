@@ -54,9 +54,23 @@ ${result.toString()}
 
 function reviewdog(e) {
   const job = new Job('reviewdog', "t0ster/reviewdog-js:0.0.1", [
+    "cd /src",
+    "npm install",
+    "echo $EVENT > /event.json",
+    "npx eslint src | reviewdog -f eslint -reporter github-pr-check",
     "tail -f /dev/null"
   ]);
-  job.env = {EVENT: JSON.stringify(e)}
+  job.env = {
+    EVENT: JSON.stringify(e.payload_obj.body),
+    REVIEWDOG_INSECURE_SKIP_VERIFY: "true",
+    GITHUB_EVENT_PATH: "/event.json",
+    GITHUB_ACTION: "reviewdog",
+    REVIEWDOG_GITHUB_API_TOKEN: e.payload_obj.token,
+    CI_COMMIT: e.payload_obj.body.check_suite.head_sha,
+    CI_REPO_NAME: e.payload_obj.body.repository.name,
+    CI_REPO_OWNER: e.payload_obj.body.repository.owner.login,
+    CI_PULL_REQUEST: e.payload_obj.body.check_suite.pull_requests[0].number
+  }
 
 
   start_env = {
