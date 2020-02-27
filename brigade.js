@@ -64,7 +64,7 @@ function reviewdog(e) {
     "CHECK_SUMMARY": "Reviewdog started"
   }
   async function end_env() {
-    result = await build.run();
+    result = await job.run();
     env = {}
     env.CHECK_SUMMARY = "Reviewdog completed";
     // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
