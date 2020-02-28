@@ -6,50 +6,52 @@ events.on("check_suite:rerequested", checkRequested);
 events.on("check_run:rerequested", checkRequested);
 
 
-function buildImage(e) {
-  const repoName = e.payload_obj.body.repository.full_name;
-  const branch = e.payload_obj.body.check_suite.head_branch;
+function build_step(e) {
+  return step(e, "Build", (e) => {
+    const repoName = e.payload_obj.body.repository.full_name;
+    const branch = e.payload_obj.body.check_suite.head_branch;
 
-  const build = new Job('build', "t0ster/build-deploy:0.0.2", [
-    "cd /src",
-    "docker build . -t $IMAGE",
-    "docker push $IMAGE"
-  ]);
-  build.volumes = [{
-    "name": "regcred",
-    "secret": {
-      "secretName": "regcred"
+    const build = new Job('build', "t0ster/build-deploy:0.0.2", [
+      "cd /src",
+      "docker build . -t $IMAGE",
+      "docker push $IMAGE"
+    ]);
+    build.volumes = [{
+      "name": "regcred",
+      "secret": {
+        "secretName": "regcred"
+      }
+    }];
+    build.volumeMounts = [{
+      "name": "regcred",
+      "mountPath": "/root/.docker/config.json",
+      "subPath": ".dockerconfigjson"
+    }]
+    build.env = {
+      "DOCKER_HOST": "tcp://dind:2375",
+      "IMAGE": `${repoName}:${branch}`
     }
-  }];
-  build.volumeMounts = [{
-    "name": "regcred",
-    "mountPath": "/root/.docker/config.json",
-    "subPath": ".dockerconfigjson"
-  }]
-  build.env = {
-    "DOCKER_HOST": "tcp://dind:2375",
-    "IMAGE": `${repoName}:${branch}`
-  }
 
-  start_env = {
-    "CHECK_TITLE": "Building...",
-    "CHECK_SUMMARY": "Beginning build"
-  }
-  async function end_env() {
-    result = await build.run();
-    env = {}
-    env.CHECK_SUMMARY = "Build completed";
-    // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
-    env.CHECK_TEXT = `### Build
+    start_env = {
+      "CHECK_TITLE": "Building...",
+      "CHECK_SUMMARY": "Beginning build"
+    }
+    async function end_env() {
+      result = await build.run();
+      env = {}
+      env.CHECK_SUMMARY = "Build completed";
+      // const payload = JSON.stringify(JSON.parse(e.payload), null, 2);
+      env.CHECK_TEXT = `### Build
 ${result.toString()}
 `;
-    // end.env.CHECK_DETAILS_URL = "https://google.com";
-    return env;
-  }
-  return {
-    "start_env": start_env,
-    "end_env": end_env
-  }
+      // end.env.CHECK_DETAILS_URL = "https://google.com";
+      return env;
+    }
+    return {
+      "start_env": start_env,
+      "end_env": end_env
+    }
+  })
 }
 
 async function reviewdog_step(e) {
@@ -126,6 +128,6 @@ async function checkRequested(e, p) {
   e.payload_obj = JSON.parse(e.payload);
   steps(
     () => reviewdog_step(e),
-    () => step(e, "Build", buildImage)
+    () => build_step(e)
   )
 }
