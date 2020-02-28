@@ -75,7 +75,7 @@ async function reviewdog_step(e) {
   try {
     await job.run();
     return true;
-  } except (e) {
+  } catch (e) {
     return false;
   }
 }
