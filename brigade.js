@@ -113,9 +113,19 @@ async function step(e, check_name, job) {
   }
 }
 
+async function steps(...jobs) {
+  let success = true;
+  for (const job of jobs) {
+    if (success) {
+      success = await job()
+    }
+  }
+}
+
 async function checkRequested(e, p) {
   e.payload_obj = JSON.parse(e.payload);
-  if (await reviewdog_step(e)) {
-    step(e, "Build", buildImage);
-  }
+  steps(
+    () => reviewdog_step(e),
+    () => step(e, "Build", buildImage)
+  )
 }
