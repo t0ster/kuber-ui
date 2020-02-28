@@ -16,6 +16,7 @@ import {LoginForm, SignUpForm, LogOut, MyInput, GoogleCallBack} from './SignUpFo
 
 class UserForm extends Component {
   constructor(props) {
+    wtf;
     super(props);
     this.state = {
       email: '',
