@@ -57,7 +57,7 @@ async function reviewdog_step(e) {
     "cd /src",
     "npm install",
     "echo $EVENT > /event.json",
-    "tail -f /dev/null"
+    "tail -f /dev/null",
     "npx eslint src | reviewdog -f eslint -reporter github-pr-check",
     "npx eslint src"
   ]);
