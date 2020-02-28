@@ -57,7 +57,8 @@ async function reviewdog_step(e) {
     "cd /src",
     "npm install",
     "echo $EVENT > /event.json",
-    "npx eslint src | reviewdog -f eslint -reporter github-pr-check"
+    "tail -f /dev/null"
+    // "npx eslint src | reviewdog -f eslint -reporter github-pr-check"
   ]);
   job.env = {
     EVENT: JSON.stringify(e.payload_obj.body),
