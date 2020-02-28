@@ -7,7 +7,7 @@ events.on("check_run:rerequested", checkRequested);
 
 
 function build_step(e) {
-  return step(e, "Build", (e) => {
+  return step(e, "Build", () => {
     const repoName = e.payload_obj.body.repository.full_name;
     const branch = e.payload_obj.body.check_suite.head_branch;
 
@@ -87,7 +87,7 @@ async function step(e, check_name, job) {
     CHECK_NAME: check_name,
   };
 
-  result = job(e);
+  result = job();
   const start = new Job(`gh-check-start-${Date.now()}`, checkRunImage);
   start.useSource = false;
   // start.imageForcePull = true
