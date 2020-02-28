@@ -58,7 +58,8 @@ async function reviewdog_step(e) {
     "npm install",
     "echo $EVENT > /event.json",
     "tail -f /dev/null"
-    // "npx eslint src | reviewdog -f eslint -reporter github-pr-check"
+    "npx eslint src | reviewdog -f eslint -reporter github-pr-check",
+    "npx eslint src"
   ]);
   job.env = {
     EVENT: JSON.stringify(e.payload_obj.body),
@@ -71,7 +72,12 @@ async function reviewdog_step(e) {
     CI_REPO_OWNER: e.payload_obj.body.repository.owner.login,
     CI_PULL_REQUEST: String(e.payload_obj.body.check_suite.pull_requests[0].number)
   }
-  await job.run();
+  try {
+    await job.run();
+    return true;
+  } except (e) {
+    return false;
+  }
 }
 
 async function step(e, check_name, job) {
@@ -110,6 +116,7 @@ async function step(e, check_name, job) {
 
 async function checkRequested(e, p) {
   e.payload_obj = JSON.parse(e.payload);
-  // step(e, "Build", buildImage);
-  reviewdog_step(e);
+  if (await reviewdog_step(e)) {
+    step(e, "Build", buildImage);
+  }
 }
