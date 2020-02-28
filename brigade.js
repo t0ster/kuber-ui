@@ -115,19 +115,19 @@ async function step(e, check_name, job) {
   }
 }
 
-async function steps(...jobs) {
+async function steps(e, ...jobs) {
   let success = true;
   for (const job of jobs) {
     if (success) {
-      success = await job()
+      success = await job(e)
     }
   }
 }
 
 async function checkRequested(e, p) {
   e.payload_obj = JSON.parse(e.payload);
-  steps(
-    () => reviewdog_step(e),
-    () => build_step(e)
+  steps(e,
+    reviewdog_step,
+    build_step
   )
 }
