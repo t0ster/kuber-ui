@@ -52,7 +52,7 @@ ${result.toString()}
   }
 }
 
-function reviewdog_step(e) {
+async function reviewdog_step(e) {
   const job = new Job('reviewdog', "t0ster/reviewdog-js:0.0.1", [
     "cd /src",
     "npm install",
