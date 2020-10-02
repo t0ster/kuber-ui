@@ -33,7 +33,7 @@ jobs:
           load: true
           target: stage-test
       - name: Test
-        run: docker run --rm t0ster/kuber-ui:test
+        run: docker run t0ster/kuber-ui:test
       - name: Build and Push
         uses: docker/build-push-action@v2
         with:
