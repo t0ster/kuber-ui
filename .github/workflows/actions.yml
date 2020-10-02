@@ -1,20 +1,7 @@
-name: learn-github-actions
+name: build-and-push
 on: [push]
 jobs:
-  view_cache:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          # key: ${{ runner.os }}-buildx-${{ github.sha }}
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - name: View chache
-        run: du -h /tmp/.buildx-cache && ls -la /tmp/.buildx-cache/blobs/sha256
-  action1:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +17,6 @@ jobs:
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
-          # key: ${{ runner.os }}-buildx-kuber-ui
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to DockerHub
