@@ -21,6 +21,15 @@ jobs:
             ${{ runner.os }}-buildx-
       - name: View cache
         run: du -h /tmp/.buildx-cache && ls -la /tmp/.buildx-cache/blobs/sha256
+      - name: Cache Docker
+        uses: actions/cache@v2
+        with:
+          path: /var/lib/docker
+          key: ${{ runner.os }}-docker-{{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+      - name: View Docker cache
+        run: du -h /var/lib/docker && ls -la /var/lib/docker
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
