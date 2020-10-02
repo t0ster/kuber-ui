@@ -9,7 +9,7 @@ jobs:
       - name: prep
         uses: t0ster/gh-action@master
       - name: test
-        run: echo ${{ steps.prep.outputs.time }}
+        run: echo Hello ${{ steps.prep.outputs.time }}
         shell: bash
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
