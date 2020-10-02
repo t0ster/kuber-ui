@@ -4,4 +4,4 @@ jobs:
   check-bats-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: t0ster/gh-action
+      - uses: t0ster/gh-action@master
