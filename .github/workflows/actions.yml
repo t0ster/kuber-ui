@@ -21,6 +21,8 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+      - name: View cache
+        run: du -h /tmp/.buildx-cache && ls -la /tmp/.buildx-cache/blobs/sha256
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
