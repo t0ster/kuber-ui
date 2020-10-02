@@ -35,6 +35,8 @@ jobs:
     needs: build
     container:
       image: t0ster/kuber-ui:test
+    steps:
+      - run: ./test.sh
   build_and_push:
     needs: [build, test]
     runs-on: ubuntu-latest
