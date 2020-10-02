@@ -32,6 +32,6 @@ jobs:
           push: true
           tags: t0ster/kuber-ui:${{ steps.prep.outputs.branch }}.${{ steps.prep.outputs.shortsha }}
           # cache-from: type=local,src=/tmp/.buildx-cache
-          cache-from: t0ster:kuber-ui:cache
+          cache-from: t0ster/kuber-ui:cache
           # cache-to: type=local,dest=/tmp/.buildx-cache
-          cache-to: t0ster:kuber-ui:cache
+          cache-to: t0ster/kuber-ui:cache
