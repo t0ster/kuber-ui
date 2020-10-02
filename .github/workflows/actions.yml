@@ -1,6 +1,19 @@
 name: learn-github-actions
 on: [push]
 jobs:
+  view_cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          # key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-kuber-ui
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: View chache
+        run: ls -la /tmp/.buildx-cache
   action1:
     runs-on: ubuntu-latest
     steps:
