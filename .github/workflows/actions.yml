@@ -13,7 +13,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: View chache
-        run: du -h /tmp/.buildx-cache
+        run: du -h /tmp/.buildx-cache && ls -la /tmp/.buildx-cache/blobs/sha256
   action1:
     runs-on: ubuntu-latest
     steps:
