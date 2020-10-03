@@ -35,6 +35,7 @@ jobs:
           cache-from: |
             type=local,src=/tmp/.buildx-cache
             type=local,src=/tmp/.buildx-cache-test
+          # For some reason for proper caching we need separate cache for test image
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-test
           # load: true
           target: stage-test
