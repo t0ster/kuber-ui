@@ -26,26 +26,27 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build for Test
-        uses: docker/build-push-action@v2
-        with:
-          # tags: t0ster/kuber-ui:test
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
-          # load: true
-          target: stage-test
-      # - name: Test
-      #   run: docker run --rm t0ster/kuber-ui:test
-      - name: Pre Build
-        uses: docker/build-push-action@v2
-        with:
-          target: stage-last
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
+      # - name: Build for Test
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     # tags: t0ster/kuber-ui:test
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
+      #     # load: true
+      #     target: stage-test
+      # # - name: Test
+      # #   run: docker run --rm t0ster/kuber-ui:test
+      # - name: Pre Build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     target: stage-last
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
       - name: Build and Push
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: t0ster/kuber-ui:${{ steps.prep.outputs.branch }}.${{ steps.prep.outputs.shortsha }}
           cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
 # 11
