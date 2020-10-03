@@ -11,8 +11,6 @@ ENTRYPOINT ["./test.sh"]
 FROM stage-test as stage-build
 RUN npm run build
 
-FROM nginx:alpine as stage-last
+FROM nginx:alpine
 COPY --from=stage-build /app/build /usr/share/nginx/html
 COPY /nginx.conf /etc/nginx/conf.d/default.conf
-
-FROM stage-last
