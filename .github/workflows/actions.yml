@@ -31,7 +31,7 @@ jobs:
         with:
           # tags: t0ster/kuber-ui:test
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
+          # cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
           # load: true
           target: stage-test
       # # - name: Test
