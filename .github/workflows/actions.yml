@@ -18,9 +18,9 @@ jobs:
           path: |
             /tmp/.buildx-cache
             /tmp/.buildx-cache-test
-          key: ${{ runner.os }}-buildx-2-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-2
+            ${{ runner.os }}-buildx-
       # - name: View cache
       #   run: du -h /tmp/.buildx-cache && ls -la /tmp/.buildx-cache/blobs/sha256
       - name: Login to DockerHub
