@@ -31,22 +31,16 @@ jobs:
       - name: Build for Test
         uses: docker/build-push-action@v2
         with:
-          # tags: t0ster/kuber-ui:test
+          tags: t0ster/kuber-ui:test
           cache-from: |
             type=local,src=/tmp/.buildx-cache
             type=local,src=/tmp/.buildx-cache-test
           # For some reason for proper caching we need separate cache for test image
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-test
-          # load: true
+          load: true
           target: stage-test
-      # # - name: Test
-      # #   run: docker run --rm t0ster/kuber-ui:test
-      # - name: Pre Build
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     target: stage-last
-      #     cache-from: type=local,src=/tmp/.buildx-cache
-      #     cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
+      - name: Test
+        run: docker run --rm t0ster/kuber-ui:test
       - name: Build and Push
         uses: docker/build-push-action@v2
         with:
