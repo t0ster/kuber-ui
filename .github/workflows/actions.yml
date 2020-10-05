@@ -1,6 +1,12 @@
 name: build-and-push
-on: [push]
+on: [push, workflow_dispatch]
 jobs:
+  dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hello
+        run: echo Hello
   build:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
