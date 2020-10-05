@@ -1,9 +1,9 @@
 name: build-and-push
-# on: [push, workflow_dispatch]
-on: workflow_dispatch
+on: [push]
+# on: workflow_dispatch
 jobs:
   dispatch:
-    if: github.event_name == 'workflow_dispatch'
+    # if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: t0ster/kuber-actions-dispatcher@177b592
