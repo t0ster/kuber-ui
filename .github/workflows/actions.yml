@@ -6,7 +6,7 @@ jobs:
     # if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: t0ster/kuber-actions-dispatcher@ddb2b8b
+      - uses: t0ster/kuber-actions-dispatcher@8878a36
         with:
           access-token: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
   # build:
