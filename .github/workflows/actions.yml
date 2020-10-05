@@ -1,5 +1,6 @@
 name: build-and-push
-on: [push, workflow_dispatch]
+# on: [push, workflow_dispatch]
+on: workflow_dispatch
 jobs:
   dispatch:
     if: github.event_name == 'workflow_dispatch'
