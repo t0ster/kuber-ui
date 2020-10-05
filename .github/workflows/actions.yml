@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: t0ster/kuber-actions-dispatcher@177b592
         with:
-          access-token: ${{ secrets.GITHUB_TOKEN }}
+          access-token: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
   # build:
   #   if: github.event_name == 'push'
   #   runs-on: ubuntu-latest
