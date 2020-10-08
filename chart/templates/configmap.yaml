@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ui.fullname" . }}
+data:
+  env-config.js: |
+    window._env_ = {
+      "REACT_APP_URL": "{{ include "ui.appURL" . }}",
+      "REACT_APP_PARSE_URL": "{{ include "ui.parseServerURL" . }}",
+      "REACT_APP_PARSE_APP_ID": "{{ include "ui.parseServerAppId" . }}",
+      "REACT_APP_PARSE_MASTER_KEY": "{{ include "ui.parseServerMasterKey" . }}"
+    }
