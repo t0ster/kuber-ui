@@ -31,6 +31,23 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+
+{{- define "ui.appURL" -}}
+{{- default .Values.global.ui.appURL .Values.appURL -}}
+{{- end -}}
+
+{{- define "ui.parseServerURL" -}}
+{{- default (index .Values.global "parse-server" "config" "serverURL") .Values.parseServerURL -}}
+{{- end -}}
+
+{{- define "ui.parseServerMasterKey" -}}
+{{- default (index .Values.global "parse-server" "config" "masterKey") .Values.parseServerMasterKey -}}
+{{- end -}}
+
+{{- define "ui.parseServerAppId" -}}
+{{- default (index .Values.global "parse-server" "config" "appId") .Values.parseServerAppId -}}
+{{- end -}}
+
 {{/*
 Common labels
 */}}
